@@ -1,0 +1,5 @@
+# Things Docker shouldn't copy into the build (faster builds, smaller context)
+.git
+docs
+*.md
+web/node_modules

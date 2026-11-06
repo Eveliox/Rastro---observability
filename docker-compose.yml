@@ -1,0 +1,30 @@
+# The whole platform. Phase 1 = the three demo services.
+# Later phases add: ingest, redpanda (Kafka), consumer, clickhouse, postgres, api, web.
+name: miniobs
+
+services:
+  checkout:
+    build: { context: ., args: { SERVICE: checkout } }
+    ports: ["8081:8081"]          # "host:container" -> reachable at localhost:8081
+    environment:
+      PORT: "8081"
+      PAYMENT_URL: http://payment:8082   # "payment" = the service name below (compose DNS)
+      # Phase 2: OTEL_EXPORTER_OTLP_ENDPOINT: http://ingest:4318
+    depends_on: [payment]
+    restart: unless-stopped
+
+  payment:
+    build: { context: ., args: { SERVICE: payment } }
+    ports: ["8082:8082"]
+    environment:
+      PORT: "8082"
+      INVENTORY_URL: http://inventory:8083
+    depends_on: [inventory]
+    restart: unless-stopped
+
+  inventory:
+    build: { context: ., args: { SERVICE: inventory } }
+    ports: ["8083:8083"]
+    environment:
+      PORT: "8083"
+    restart: unless-stopped
